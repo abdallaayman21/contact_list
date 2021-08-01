@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SharedPreferences storage = await SharedPreferences.getInstance();
         setState(() {
           isTimeAgo = storage.getBool('timeAgo') == null
-              ? false
+              ? true
               : storage.getBool('timeAgo')!;
           isLoading = false;
         });
