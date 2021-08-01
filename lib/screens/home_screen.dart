@@ -3,6 +3,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key, required this.title}) : super(key: key);
@@ -39,13 +40,61 @@ class _HomeScreenState extends State<HomeScreen> {
   // ];
 
   List contactList = [];
+  bool isTimeAgo = false;
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading)
+      Future.microtask(() async {
+        SharedPreferences storage = await SharedPreferences.getInstance();
+        setState(() {
+          isTimeAgo = storage.getBool('timeAgo') == null
+              ? false
+              : storage.getBool('timeAgo')!;
+          isLoading = false;
+        });
+      });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         centerTitle: true,
+        backwardsCompatibility: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.white,
+                    ),
+                  )
+                : ToggleButtons(
+                    fillColor: Colors.white,
+                    color: Colors.white54,
+                    borderColor: Colors.white38,
+                    selectedColor: Colors.indigo,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text('Time Ago'),
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(20),
+                    isSelected: [isTimeAgo],
+                    onPressed: (i) async {
+                      setState(() {
+                        isTimeAgo = !isTimeAgo;
+                      });
+                      SharedPreferences storage =
+                          await SharedPreferences.getInstance();
+                      await storage.setBool('timeAgo', isTimeAgo);
+                      print(isTimeAgo);
+                    },
+                  ),
+          ),
+        ],
       ),
       body: Center(
         child: FutureBuilder(
@@ -107,15 +156,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       var data = contactList[i];
                       DateTime time = DateTime.parse(data['check-in']);
                       return ListTile(
+                        leading: IconButton(
+                          icon: Icon(
+                            Icons.share,
+                            color: Colors.indigo,
+                          ),
+                          padding: EdgeInsets.all(0.0),
+                          onPressed: () {},
+                        ),
                         title: Text(data['user']),
                         subtitle: Text(data['phone']),
                         trailing: Text(
-                          Jiffy(time).fromNow(),
+                          isTimeAgo ? Jiffy(time).fromNow() : time.toString(),
                           style: TextStyle(
                             color: Colors.grey[700],
                           ),
                         ),
-                        leading: Icon(Icons.call),
                       );
                     },
                   ),
