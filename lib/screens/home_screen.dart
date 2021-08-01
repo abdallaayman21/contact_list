@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List contactList = [];
-  bool isTimeAgo = false;
+  bool isTimeAgo = true;
   bool isLoading = true;
 
   @override
