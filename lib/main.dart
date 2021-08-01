@@ -12,8 +12,10 @@ class ContactList extends StatelessWidget {
       title: 'Contact List',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
+          primarySwatch: Colors.indigo,
+          appBarTheme: Theme.of(context)
+              .appBarTheme
+              .copyWith(brightness: Brightness.dark)),
       home: HomeScreen(title: 'Contact List'),
     );
   }
