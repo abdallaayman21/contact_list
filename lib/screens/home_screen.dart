@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,30 +18,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // List users = [
-  //   'Abdalla Ayman',
-  //   'Ahmed Hassan',
-  //   'Shady Yasser',
-  //   'Mohammed Shahin',
-  //   'Nabila Mohammed'
-  // ];
-
-  // List phones = [
-  //   '0136737610',
-  //   '0134578945',
-  //   '0139789798',
-  //   '0167478941',
-  //   '0194571257'
-  // ];
-
-  // List checkins = [
-  //   '2019-06-30 16:10:05',
-  //   '2018-12-25 03:00:00',
-  //   '2021-03-01 14:30:05',
-  //   '2021-01-05 20:55:05',
-  //   '2020-09-16 18:20:05'
-  // ];
-
   List contactList = [];
   bool isTimeAgo = false;
   bool isLoading = true;
@@ -61,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(widget.title),
         centerTitle: true,
         backwardsCompatibility: false,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -162,7 +142,23 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.indigo,
                           ),
                           padding: EdgeInsets.all(0.0),
-                          onPressed: () {},
+                          onPressed: () async {
+                            Directory temp = await getTemporaryDirectory();
+
+                            var vCard = File('${temp.path}/vCard.vcf');
+
+                            await vCard.writeAsString(
+                              'BEGIN:VCARD\nVERSION:3.0\nFN;CHARSET=UTF-8:${data['user']}\nN;CHARSET=UTF-8:;${data['user']};;;\nTEL;TYPE=CELL:${data['phone']}\nREV:${DateTime.now().toUtc()}\nEND:VCARD',
+                            );
+
+                            print(await vCard.readAsString());
+
+                            await Share.shareFiles([vCard.path]);
+
+                            await vCard.delete();
+
+                            await temp.delete();
+                          },
                         ),
                         title: Text(data['user']),
                         subtitle: Text(data['phone']),

@@ -31,6 +31,8 @@ dependencies:
   jiffy: ^4.1.0
   faker: ^2.0.0
   shared_preferences: ^2.0.6
+  share: ^2.0.4
+  path_provider: ^2.0.2
 
 dev_dependencies:
   flutter_test:
